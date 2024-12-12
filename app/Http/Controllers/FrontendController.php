@@ -26,30 +26,34 @@ class FrontendController extends Controller
         return view('pages.frontend.search');
     }
     public function investoram(Request $request, $subcategory = null)
-    {
-        // Retrieve category by slug (optional)
-        $category = Category::where('slug', $subcategory)->first();
+{
+    $category = Category::where('slug', $subcategory)->first();
+
+    $validStatuses = ['1_step', '2_step', 'completed', 'archive', '2_step'];
+    $status = in_array($request->status, $validStatuses) ? $request->status : null;
+
+    $projects = Project::when($status, function ($query, $status) {
+            return $query->where('status', $status);
+        })
+        ->when($request->q, function ($query, $search) {
+            return $query->where(function ($q) use ($search) {
+                $q->where('district', 'LIKE', '%' . $search . '%')
+                    ->orWhere('land', 'LIKE', '%' . $search . '%')
+                    ->orWhere('mahalla', 'LIKE', '%' . $search . '%');
+            });
+        })
+        ->get();
     
-        // Get status from request and validate it
-        $validStatuses = ['1_step', '2_step', 'completed', 'archive'];
-        $status = in_array($request->status, $validStatuses) ? $request->status : null;
-    
-        // Fetch projects with filters
-        $projects = Project::when($status, function ($query, $status) {
-                return $query->where('status', $status);
-            })
-            ->when($request->q, function ($query, $search) {
-                return $query->where(function ($q) use ($search) {
-                    $q->where('district', 'LIKE', '%' . $search . '%')
-                        ->orWhere('land', 'LIKE', '%' . $search . '%')
-                        ->orWhere('mahalla', 'LIKE', '%' . $search . '%');
-                });
-            })
-            ->get();
-    
-        return view('pages.frontend.investoram', compact('category', 'projects'));
+    // If AJAX request, return only the HTML of filtered projects
+    if ($request->ajax()) {
+        return response()->json([
+            'html' => view('partials._projects', compact('projects'))->render()
+        ]);
     }
-    
+
+    return view('pages.frontend.investoram', compact('category', 'projects'));
+}
+
     
  
     public function media(){
