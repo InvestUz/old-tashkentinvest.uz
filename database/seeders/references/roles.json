@@ -1,0 +1,23 @@
+
+[
+    {
+        "name": "Super Admin",
+        "guard_name": "web",
+        "title": "Tashkent Invest"
+    },
+    {
+        "name": "Baholash",
+        "guard_name": "web",
+        "title": "Baholash"
+    },
+    {
+        "name": "TumanHokimligi",
+        "guard_name": "web",
+        "title": "Tuman Hokimligi"
+    },
+    {
+        "name": "InvestXodim",
+        "guard_name": "web",
+        "title": "Tashkent Invest Xodim"
+    }
+]
